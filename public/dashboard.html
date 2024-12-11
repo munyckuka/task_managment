@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+<header class="navbar">
+  <div class="logo">Tasker</div>
+  <nav>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Dashboard</a></li>
+      <li><a href="#">Log in</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="container">
+  <aside class="sidebar">
+    <ul>
+      <li>Add</li>
+      <li>Statistics</li>
+      <li class="active">Deadline
+        <div class="task">Task 1</div>
+      </li>
+      <li>Settings</li>
+    </ul>
+  </aside>
+
+  <main class="content">
+    <div class="add-task">+Add</div>
+    <section class="tasks-section">
+      <h2>All</h2>
+      <div class="task-container">
+        <div class="task easy">Task 1</div>
+        <div class="task hard">Task 1111111111</div>
+        <div class="task medium">Task 4</div>
+      </div>
+    </section>
+
+    <section class="tasks-section">
+      <h2>In progress</h2>
+      <div class="task-container">
+        <div class="task medium">Task 2</div>
+      </div>
+    </section>
+
+    <section class="tasks-section">
+      <h2>Done</h2>
+      <div class="task-container">
+        <div class="task easy">Task 3</div>
+      </div>
+    </section>
+
+    <div class="legend">
+      <span class="task easy">Easy</span>
+      <span class="task medium">Medium</span>
+      <span class="task hard">Hard</span>
+    </div>
+  </main>
+</div>
+</body>
+</html>
