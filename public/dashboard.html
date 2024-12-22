@@ -1,66 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <link rel="stylesheet" href="dashboard.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #sidebar {
+            height: 100vh;
+            width: 250px;
+            background: #f8f9fa;
+            position: fixed;
+            padding: 20px;
+        }
+        .kanban {
+            margin-left: 270px;
+            padding: 20px;
+        }
+        #kanbanBoard{
+          height: 100%;
+          width: 100%;
+          overflow-x: auto;
+        }
+        .kanban-column {
+            border-radius: 5px;
+            background: #f1f1f1;
+            padding: 10px;
+            margin-right: 20px;
+        }
+        .kanban-task {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .task-priority-high {
+            border-left: 5px solid red;
+        }
+        .task-priority-medium {
+            border-left: 5px solid orange;
+        }
+        .task-priority-low {
+            border-left: 5px solid green;
+        }
+    </style>
 </head>
 <body>
-<header class="navbar">
-  <div class="logo">Tasker</div>
-  <nav>
-    <ul class="nav-links">
-      <li><a href="#">Home</a></li>
-      <li><a href="#">Dashboard</a></li>
-      <li><a href="#">Log in</a></li>
-    </ul>
-  </nav>
-</header>
 
-<div class="container">
-  <aside class="sidebar">
-    <ul>
-      <li>Add</li>
-      <li>Statistics</li>
-      <li class="active">Deadline
-        <div class="task">Task 1</div>
-      </li>
-      <li>Settings</li>
-    </ul>
-  </aside>
-
-  <main class="content">
-    <div class="add-task">+Add</div>
-    <section class="tasks-section">
-      <h2>All</h2>
-      <div class="task-container">
-        <div class="task easy">Task 1</div>
-        <div class="task hard">Task 1111111111</div>
-        <div class="task medium">Task 4</div>
-      </div>
-    </section>
-
-    <section class="tasks-section">
-      <h2>In progress</h2>
-      <div class="task-container">
-        <div class="task medium">Task 2</div>
-      </div>
-    </section>
-
-    <section class="tasks-section">
-      <h2>Done</h2>
-      <div class="task-container">
-        <div class="task easy">Task 3</div>
-      </div>
-    </section>
-
-    <div class="legend">
-      <span class="task easy">Easy</span>
-      <span class="task medium">Medium</span>
-      <span class="task hard">Hard</span>
+<div id="sidebar">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5>Profile</h5>
+        <i class="fas fa-user-circle"></i>
     </div>
-  </main>
+    <button class="btn btn-outline-primary w-100 mb-2">Manage Profile</button>
+    <button class="btn btn-outline-danger w-100 mb-4">Leave</button>
+    <nav>
+        <a href="#" class="btn btn-outline-secondary w-100 mb-2">Home</a>
+        <a href="#" class="btn btn-outline-secondary w-100 mb-2">Statistics</a>
+        <a href="#" class="btn btn-outline-secondary w-100 mb-2">Calendar</a>
+        <a href="#" class="btn btn-outline-secondary w-100">Dashboard</a>
+    </nav>
 </div>
+
+<div class="kanban">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Kanban Dashboard</h3>
+        <button class="btn btn-primary" id="addColumn">Add Column</button>
+    </div>
+    <div class="row" id="kanbanBoard">
+      <div class="kanban-column col-md-3" data-column-id="1">
+          <div class="kanban-header">
+            <input type="text" value="Column 1" class="column-title">
+            <button class="btn btn-sm btn-outline-secondary change-color">🎨</button>
+          </div>
+          <div class="kanban-task task-priority-high">
+            <h6>Task 1</h6>
+            <p>Description...</p>
+          </div>
+          <button class="btn btn-sm btn-outline-primary mb-3" onclick="showTaskPopup(this)">+ Add Task</button>
+      </div>
+    </div>
+</div>
+
+
+<!-- Task Popup Modal -->
+<div class="modal" id="taskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm">
+                    <div class="mb-3">
+                        <label for="taskTitle" class="form-label">Title</label>
+                        <input type="text" id="taskTitle" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskDescription" class="form-label">Description</label>
+                        <textarea id="taskDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskDeadline" class="form-label">Deadline</label>
+                        <input type="date" id="taskDeadline" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskPriority" class="form-label">Priority</label>
+                        <select id="taskPriority" class="form-select">
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="addTask()">Save Task</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    let activeColumn = null; // To track the column where the task should be added
+
+function showTaskPopup(button) {
+    // Identify the column associated with the Add Task button
+    activeColumn = button.closest('.kanban-column'); // Finds the closest column div
+    const taskModal = new bootstrap.Modal(document.getElementById('taskModal'));
+    taskModal.show();
+}
+
+function addTask() {
+    const title = document.getElementById('taskTitle').value;
+    const description = document.getElementById('taskDescription').value;
+    const priority = document.getElementById('taskPriority').value;
+
+    const taskHTML = `
+        <div class="kanban-task task-priority-${priority}">
+            <h6>${title}</h6>
+            <p>${description}</p>
+        </div>
+    `;
+
+    if (activeColumn) {
+        const addTaskButton = activeColumn.querySelector('.btn-outline-primary'); // Select the Add Task button in the active column
+
+        // Insert the new task before the Add Task button
+        addTaskButton.insertAdjacentHTML('beforebegin', taskHTML);
+    }
+
+    // Close the modal and reset the form
+    const taskModal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
+    taskModal.hide();
+    document.getElementById('taskForm').reset();
+
+    // Reset active column after adding the task
+    activeColumn = null;
+}
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const kanbanBoard = document.getElementById("kanbanBoard");
+        const addColumnButton = document.getElementById("addColumn");
+
+        addColumnButton.addEventListener("click", function () {
+            const newColumn = document.createElement("div");
+            newColumn.className = "kanban-column";
+            newColumn.classList.add("col-md-3")
+            newColumn.innerHTML = `
+                <div class="kanban-header">
+                    <input type="text" class="column-title" placeholder="Enter column title">
+                    <button class="btn btn-sm btn-outline-secondary change-color">🎨</button>
+                </div>
+                <button class="btn btn-sm btn-outline-primary mb-3" onclick="showTaskPopup(this)">+ Add Task</button>
+            `;
+            kanbanBoard.appendChild(newColumn);
+            const input = newColumn.querySelector(".column-title");
+            input.focus();
+        });
+
+        kanbanBoard.addEventListener("click", function (e) {
+            if (e.target.classList.contains("change-color")) {
+                const color = prompt("Enter a color for the column (e.g., #ff0000 or lightblue):", "#f4f4f4");
+                if (color) {
+                    e.target.closest(".kanban-column").style.backgroundColor = color;
+                }
+            }
+        });
+    });
+</script>
+
 </body>
 </html>
