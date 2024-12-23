@@ -1,11 +1,17 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
+const taskRoutes = require('./routes/taskRoutes');
+
+dotenv.config();
+connectDB();
+
 const app = express();
-const port = 3000;
+app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-    res.send('Hello, Node.js!');
-});
+// Маршруты
+app.use('/api/tasks', taskRoutes);
 
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Сервер запущен на порту localhost:${PORT}`));
