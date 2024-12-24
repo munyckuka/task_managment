@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/munyckuka/task_managment/issues"
   },
-  "homepage": "https://github.com/munyckuka/task_managment#readme"
+  "homepage": "https://github.com/munyckuka/task_managment#readme",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.2"
+  }
 }
