@@ -26,21 +26,21 @@
 </div>
 
 <div class="kanban">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="kanbanHeader d-flex justify-content-between align-items-center">
         <h3>Kanban Dashboard</h3>
         <button class="btn btn-primary" id="addColumn">Add Column</button>
     </div>
     <div class="row" id="kanbanBoard">
       <div class="kanban-column col-md-3" data-column-id="1">
           <div class="kanban-header">
-            <input type="text" value="Column 1" class="column-title">
-            <button class="btn btn-sm btn-outline-secondary change-color">🎨</button>
+            <input type="text" value="Column 1" id="columnTitle">
+            <i class="fa-solid fa-pen-to-square" style="position: relative; right: 20px; z-index: -1; color: #9e9e9e;"></i>
           </div>
           <div class="kanban-task task-priority-high">
             <h6>Task 1</h6>
             <p>Description...</p>
           </div>
-          <button class="btn btn-sm btn-outline-primary mb-3" onclick="showTaskPopup(this)">+ Add Task</button>
+          <button class="btn btn-sm btn-outline-primary mb-3" onclick="showTaskPopup(this)" id="addTask">+ Add Task</button>
       </div>
     </div>
 </div>
@@ -58,7 +58,7 @@
                 <form id="taskForm">
                     <div class="mb-3">
                         <label for="taskTitle" class="form-label">Title</label>
-                        <input type="text" id="taskTitle" class="form-control" required>
+                        <input type="text" id="taskTitle" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label for="taskDescription" class="form-label">Description</label>
@@ -87,75 +87,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script>
-    let activeColumn = null; // To track the column where the task should be added
-
-function showTaskPopup(button) {
-    // Identify the column associated with the Add Task button
-    activeColumn = button.closest('.kanban-column'); // Finds the closest column div
-    const taskModal = new bootstrap.Modal(document.getElementById('taskModal'));
-    taskModal.show();
-}
-
-function addTask() {
-    const title = document.getElementById('taskTitle').value;
-    const description = document.getElementById('taskDescription').value;
-    const priority = document.getElementById('taskPriority').value;
-
-    const taskHTML = `
-        <div class="kanban-task task-priority-${priority}">
-            <h6>${title}</h6>
-            <p>${description}</p>
-        </div>
-    `;
-
-    if (activeColumn) {
-        const addTaskButton = activeColumn.querySelector('.btn-outline-primary'); // Select the Add Task button in the active column
-
-        // Insert the new task before the Add Task button
-        addTaskButton.insertAdjacentHTML('beforebegin', taskHTML);
-    }
-
-    // Close the modal and reset the form
-    const taskModal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
-    taskModal.hide();
-    document.getElementById('taskForm').reset();
-
-    // Reset active column after adding the task
-    activeColumn = null;
-}
-
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const kanbanBoard = document.getElementById("kanbanBoard");
-        const addColumnButton = document.getElementById("addColumn");
-
-        addColumnButton.addEventListener("click", function () {
-            const newColumn = document.createElement("div");
-            newColumn.className = "kanban-column";
-            newColumn.classList.add("col-md-3")
-            newColumn.innerHTML = `
-                <div class="kanban-header">
-                    <input type="text" class="column-title" placeholder="Enter column title">
-                    <button class="btn btn-sm btn-outline-secondary change-color">🎨</button>
-                </div>
-                <button class="btn btn-sm btn-outline-primary mb-3" onclick="showTaskPopup(this)">+ Add Task</button>
-            `;
-            kanbanBoard.appendChild(newColumn);
-            const input = newColumn.querySelector(".column-title");
-            input.focus();
-        });
-
-        kanbanBoard.addEventListener("click", function (e) {
-            if (e.target.classList.contains("change-color")) {
-                const color = prompt("Enter a color for the column (e.g., #ff0000 or lightblue):", "#f4f4f4");
-                if (color) {
-                    e.target.closest(".kanban-column").style.backgroundColor = color;
-                }
-            }
-        });
-    });
-</script>
+<script src="dashboard.js"></script>
 
 </body>
 </html>
