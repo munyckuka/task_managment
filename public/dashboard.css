@@ -9,7 +9,6 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     color: #333;
-    height: 100vh;
 }
 
 /* Navbar */
@@ -143,6 +142,8 @@ body {
 .kanban {
     margin-left: 270px;
     padding: 20px;
+    height: 100%;
+    width: auto;
 }
 .kanbanHeader{
     height: 80px;
@@ -152,10 +153,12 @@ body {
     height: 100%;
     width: 100%;
     overflow-x: auto;
+    overscroll-behavior-x: none;
     padding: 10px;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+    flex-wrap: nowrap;
 }
 .kanban-column {
     width: 300px;
@@ -168,11 +171,15 @@ body {
     box-shadow: #9e9e9e 0px 0px 5px;
 }
 #columnTitle{
-    border: none;
+    border: transparent solid 1px;
     background: transparent;
+    padding: 2px;
+    border-radius: 5px;
+    transition: border .2s ease-out;
 }
 #columnTitle:hover{
     cursor:text;
+    border: #9e9e9e solid 1px;
 }
 .kanban-task {
     margin: 10px 0;
