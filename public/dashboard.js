@@ -45,6 +45,14 @@ function showTaskPopup(button) {
     taskModal.show();
 }
 
+const taskTitle = document.getElementById('taskTitle');
+taskTitle.addEventListener("input", ()=>{
+    if(taskTitle.value){
+        document.getElementById('addTaskButton').disabled = false;
+    }else{
+        document.getElementById('addTaskButton').disabled = true;
+    }
+})
 function addTask() {
     const title = document.getElementById('taskTitle').value;
     const description = document.getElementById('taskDescription').value;
@@ -81,13 +89,13 @@ function addTask() {
             newColumn.classList.add("col-md-3")
             newColumn.innerHTML = `
                 <div class="kanban-header">
-                    <input type="text" value="Column 1" id="columnTitle">
+                    <input type="text" value="" id="columnTitle">
                     <i class="fa-solid fa-pen-to-square" style="position: relative; right: 20px; z-index: -1; color: #9e9e9e;"></i>
                 </div>
-                <button class="btn btn-sm btn-outline-primary mb-3" onclick="showTaskPopup(this)">+ Add Task</button>
+                <button class="btn btn-sm btn-outline-primary mb-3" onclick="showTaskPopup(this)" id="addTask">+ Add Task</button>
             `;
             kanbanBoard.appendChild(newColumn);
-            const input = newColumn.querySelector(".column-title");
+            const input = newColumn.querySelector("#columnTitle");
             input.focus();
         });
 
