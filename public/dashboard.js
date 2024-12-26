@@ -1,4 +1,43 @@
-let activeColumn = null; 
+let activeColumn = null;
+
+async function loadTasks() {
+    try {
+        const response = await fetch('/api/tasks'); // Отправка запроса на сервер
+        if (!response.ok) {
+            throw new Error('Ошибка при загрузке задач');
+        }
+        const tasks = await response.json(); // Получение данных
+
+        renderTasks(tasks); // Передача данных для отображения
+    } catch (error) {
+        console.error('Ошибка загрузки задач:', error);
+    }
+}
+
+function renderTasks(tasks) {
+    const kanbanBoard = document.getElementById('kanbanBoard');
+    kanbanBoard.innerHTML = ''; // Очистить текущую Kanban-доску
+
+    tasks.forEach(task => {
+        const column = document.createElement('div');
+        column.className = 'kanban-column col-md-3';
+        column.dataset.columnId = task._id;
+
+        column.innerHTML = `
+            <div class="kanban-header">
+                <h6>${task.groupName}</h6>
+            </div>
+            <div class="kanban-task task-priority-${task.priority.toLowerCase()}">
+                <h6>${task.title}</h6>
+                <p>${task.description}</p>
+            </div>
+        `;
+        kanbanBoard.appendChild(column);
+    });
+}
+
+// Загрузка задач при загрузке страницы
+document.addEventListener('DOMContentLoaded', loadTasks);
 
 function showTaskPopup(button) {
     activeColumn = button.closest('.kanban-column');
