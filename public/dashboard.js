@@ -53,6 +53,8 @@ taskTitle.addEventListener("input", ()=>{
         document.getElementById('addTaskButton').disabled = true;
     }
 })
+
+// Add Task when AddTaskButton is clicked
 function addTask() {
     const title = document.getElementById('taskTitle').value;
     const description = document.getElementById('taskDescription').value;
@@ -79,32 +81,70 @@ function addTask() {
 }
 
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const kanbanBoard = document.getElementById("kanbanBoard");
-        const addColumnButton = document.getElementById("addColumn");
 
-        addColumnButton.addEventListener("click", function () {
-            const newColumn = document.createElement("div");
-            newColumn.className = "kanban-column";
-            newColumn.classList.add("col-md-3")
-            newColumn.innerHTML = `
-                <div class="kanban-header">
-                    <input type="text" value="" id="columnTitle">
-                    <i class="fa-solid fa-pen-to-square" style="position: relative; right: 20px; z-index: -1; color: #9e9e9e;"></i>
-                </div>
-                <button class="btn btn-sm btn-outline-primary mb-3" onclick="showTaskPopup(this)" id="addTask">+ Add Task</button>
-            `;
-            kanbanBoard.appendChild(newColumn);
-            const input = newColumn.querySelector("#columnTitle");
-            input.focus();
-        });
+// Add new Column
+document.addEventListener("DOMContentLoaded", function () {
+    const kanbanBoard = document.getElementById("kanbanBoard");
+    const addColumnButton = document.getElementById("addColumn");
 
-        kanbanBoard.addEventListener("click", function (e) {
-            if (e.target.classList.contains("change-color")) {
-                const color = prompt("Enter a color for the column (e.g., #ff0000 or lightblue):", "#f4f4f4");
-                if (color) {
-                    e.target.closest(".kanban-column").style.backgroundColor = color;
-                }
+    addColumnButton.addEventListener("click", function () {
+        const newColumn = document.createElement("div");
+        newColumn.className = "kanban-column pending-column";
+        newColumn.classList.add("col-md-3");
+
+        // Create the column structure with confirmation and cancel buttons
+        newColumn.innerHTML = `
+            <div class="kanban-header">
+                <input type="text" placeholder="Enter column name" class="column-title-input" id="columnTitle">
+                <button class="btn btn-sm btn-success confirm-column">Confirm</button>
+                <button class="btn btn-sm btn-danger cancel-column">Cancel</button>
+            </div>
+        `;
+        kanbanBoard.appendChild(newColumn);
+
+        const input = newColumn.querySelector(".column-title-input");
+        input.focus();
+
+        // Add event listeners for Confirm and Cancel buttons
+        const confirmButton = newColumn.querySelector(".confirm-column");
+        const cancelButton = newColumn.querySelector(".cancel-column");
+        confirmButton.disabled = true;
+
+
+        // Enable confirmation button when input field is not empty
+        input.addEventListener("input", () => {
+            if (input.value.trim() !== "") { 
+                confirmButton.disabled = false;
+            } else {
+                confirmButton.disabled = true; 
             }
         });
+        
+        // Add Column after confirmation
+        confirmButton.addEventListener("click", function () {
+            const columnName = input.value.trim();
+            if (columnName) {
+                // Set the column name and finalize its structure
+                newColumn.classList.remove("pending-column");
+                newColumn.querySelector(".kanban-header").innerHTML = `
+                    <input type="text" value="${input.value}" id="columnTitle">
+                    <i class="fa-solid fa-pen-to-square" id="columnEditButton""></i>
+                `;
+                const addTaskButton = document.createElement("button");
+                addTaskButton.className = "btn btn-sm btn-outline-primary mb-3";
+                addTaskButton.id = "addTask";
+                addTaskButton.textContent = "+ Add Task";
+                addTaskButton.onclick = function () {
+                    showTaskPopup(this);
+                };
+                newColumn.appendChild(addTaskButton);
+            }
+        });
+        
+        // Remove column if cancel button is clicked
+        cancelButton.addEventListener("click", function () {
+            kanbanBoard.removeChild(newColumn);
+        });
     });
+});
+
