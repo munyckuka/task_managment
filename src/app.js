@@ -14,6 +14,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "../public"))) // добавляем front
 // Маршруты
 app.use('/api/tasks', taskRoutes);
+
 // Маршрут для Dashboard
 app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'dashboard.html'));

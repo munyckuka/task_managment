@@ -72,6 +72,25 @@
                             <option value="high">High</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="taskReminder" class="form-label">Remind me ___ before</label>
+                        <select id="taskReminder" class="form-select">
+                            <option value="1hour">1 Hour</option>
+                            <option value="1day">1 Day</option>
+                            <option value="1week">1 Week</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskColor" class="form-label">Color</label>
+                        <select id="taskColor" class="form-select">
+                            <option value="#fff">White</option>
+                            <option value="ea0505">Red</option>
+                            <option value="ea8205">Orange</option>
+                            <option value="eddd1b">Yellow</option>
+                            <option value="1bed6b">Green</option>
+                            <option value="1ba4ed">Blue</option>
+                        </select>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <input type="submit" class="btn btn-primary" onclick="addTask()" value="Save Task" disabled id="addTaskButton">
