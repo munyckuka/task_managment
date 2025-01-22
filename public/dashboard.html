@@ -26,21 +26,21 @@
 </div>
 
 <div class="kanban" id="kanbanBoard">
-    <div class="kanban-column col-md-4" id="inPlanColumn">
+    <div class="kanban-column col-md-4" id="inPlanColumn" ondragover="allowDrop(event)" ondrop="dropTask(event, 'In plan')">
         <div class="kanban-header">
             <h4>In Plan</h4>
         </div>
         <div class="task-container"></div>
         <button class="btn btn-sm btn-outline-primary mt-3 w-100" onclick="showTaskPopup('In plan')">+ Add Task</button>
     </div>
-    <div class="kanban-column col-md-4" id="inProgressColumn">
+    <div class="kanban-column col-md-4" id="inProgressColumn" ondragover="allowDrop(event)" ondrop="dropTask(event, 'In progress')">
         <div class="kanban-header">
             <h4>In Progress</h4>
         </div>
         <div class="task-container"></div>
         <button class="btn btn-sm btn-outline-primary mt-3 w-100" onclick="showTaskPopup('In progress')">+ Add Task</button>
     </div>
-    <div class="kanban-column col-md-4" id="doneColumn">
+    <div class="kanban-column col-md-4" id="doneColumn" ondragover="allowDrop(event)" ondrop="dropTask(event, 'Done')">
         <div class="kanban-header">
             <h4>Done</h4>
         </div>

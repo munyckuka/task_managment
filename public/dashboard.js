@@ -100,6 +100,57 @@ async function addTask() {
         console.error('Ошибка при добавлении задачи:', error);
     }
 }
+// Разрешить сброс (drop) элемента
+function allowDrop(event) {
+    event.preventDefault();
+}
+
+// Начать перетаскивание задачи
+function dragTask(event, taskId) {
+    event.dataTransfer.setData('taskId', taskId);
+}
+
+// Обработать сброс задачи в новую колонку
+async function dropTask(event, newStatus) {
+    event.preventDefault();
+    const taskId = event.dataTransfer.getData('taskId');
+
+    try {
+        // Обновляем статус задачи в базе данных
+        const response = await fetch(`${API_URL}/${taskId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus }),
+        });
+
+        if (response.ok) {
+            // Перезагружаем задачи после обновления
+            loadTasks();
+        } else {
+            console.error('Ошибка обновления статуса задачи:', await response.text());
+        }
+    } catch (error) {
+        console.error('Ошибка при обновлении статуса:', error);
+    }
+}
+
+// Создать DOM-элемент задачи (обновлено для Drag-and-Drop)
+function createTaskElement(task) {
+    const taskDiv = document.createElement('div');
+    taskDiv.className = 'task card mb-2';
+    taskDiv.draggable = true; // Сделать задачу перетаскиваемой
+    taskDiv.style.backgroundColor = task.color || '#fff';
+    taskDiv.setAttribute('ondragstart', `dragTask(event, '${task._id}')`);
+    taskDiv.innerHTML = `
+        <div class="card-body">
+            <h5 class="card-title">${task.title}</h5>
+            <p class="card-text">${task.description || ''}</p>
+            <p class="card-text"><small class="text-muted">Deadline: ${new Date(task.deadline).toLocaleDateString()}</small></p>
+        </div>
+    `;
+    return taskDiv;
+}
+
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
