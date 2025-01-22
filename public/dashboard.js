@@ -1,150 +1,111 @@
-let activeColumn = null;
+// URL для API
+const API_URL = '/api/tasks';
 
+// Элементы колонок
+const inPlanColumn = document.getElementById('inPlanColumn').querySelector('.task-container');
+const inProgressColumn = document.getElementById('inProgressColumn').querySelector('.task-container');
+const doneColumn = document.getElementById('doneColumn').querySelector('.task-container');
+
+// Загрузка задач с сервера
 async function loadTasks() {
     try {
-        const response = await fetch('/api/tasks'); // Отправка запроса на сервер
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке задач');
-        }
-        const tasks = await response.json(); // Получение данных
-
-        renderTasks(tasks); // Передача данных для отображения
+        const response = await fetch(API_URL);
+        const tasks = await response.json();
+        renderTasks(tasks);
     } catch (error) {
         console.error('Ошибка загрузки задач:', error);
     }
 }
 
+// Отображение задач в соответствующих колонках
 function renderTasks(tasks) {
-    const kanbanBoard = document.getElementById('kanbanBoard');
-    kanbanBoard.innerHTML = ''; // Очистить текущую Kanban-доску
+    // Очистка колонок перед обновлением
+    inPlanColumn.innerHTML = '';
+    inProgressColumn.innerHTML = '';
+    doneColumn.innerHTML = '';
 
     tasks.forEach(task => {
-        const column = document.createElement('div');
-        column.className = 'kanban-column col-md-3';
-        column.dataset.columnId = task._id;
-
-        column.innerHTML = `
-            <div class="kanban-header">
-                <h6>${task.groupName}</h6>
-            </div>
-            <div class="kanban-task task-priority-${task.priority.toLowerCase()}">
-                <h6>${task.title}</h6>
-                <p>${task.description}</p>
-            </div>
-        `;
-        kanbanBoard.appendChild(column);
+        const taskElement = createTaskElement(task);
+        if (task.status === 'In plan') {
+            inPlanColumn.appendChild(taskElement);
+        } else if (task.status === 'In progress') {
+            inProgressColumn.appendChild(taskElement);
+        } else if (task.status === 'Done') {
+            doneColumn.appendChild(taskElement);
+        }
     });
 }
 
-// Загрузка задач при загрузке страницы
-document.addEventListener('DOMContentLoaded', loadTasks);
-
-function showTaskPopup(button) {
-    activeColumn = button.closest('.kanban-column');
-    const taskModal = new bootstrap.Modal(document.getElementById('taskModal'));
-    taskModal.show();
-}
-
-const taskTitle = document.getElementById('taskTitle');
-taskTitle.addEventListener("input", ()=>{
-    if(taskTitle.value){
-        document.getElementById('addTaskButton').disabled = false;
-    }else{
-        document.getElementById('addTaskButton').disabled = true;
-    }
-})
-
-// Add Task when AddTaskButton is clicked
-function addTask() {
-    const title = document.getElementById('taskTitle').value;
-    const description = document.getElementById('taskDescription').value;
-    const priority = document.getElementById('taskPriority').value;
-
-    const taskHTML = `
-        <div class="kanban-task task-priority-${priority}">
-            <h6>${title}</h6>
-            <p>${description}</p>
+// Создание DOM-элемента задачи
+function createTaskElement(task) {
+    const taskDiv = document.createElement('div');
+    taskDiv.className = 'task card mb-2';
+    taskDiv.style.backgroundColor = task.color || '#fff';
+    taskDiv.innerHTML = `
+        <div class="card-body">
+            <h5 class="card-title">${task.title}</h5>
+            <p class="card-text">${task.description || ''}</p>
+            <p class="card-text"><small class="text-muted">Deadline: ${new Date(task.deadline).toLocaleDateString()}</small></p>
         </div>
     `;
-
-    if (activeColumn) {
-        const addTaskButton = activeColumn.querySelector('.btn-outline-primary'); 
-
-        addTaskButton.insertAdjacentHTML('beforebegin', taskHTML);
-    }
-
-    const taskModal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
-    taskModal.hide();
-    document.getElementById('taskForm').reset();
-
-    activeColumn = null;
+    return taskDiv;
 }
 
+// Отображение модального окна для добавления задачи
+function showTaskPopup(status) {
+    const modal = new bootstrap.Modal(document.getElementById('taskModal'));
+    document.getElementById('taskStatus').value = status; // Устанавливаем статус задачи
+    modal.show();
+}
 
+// Добавление новой задачи
+async function addTask() {
+    const title = document.getElementById('taskTitle').value;
+    const description = document.getElementById('taskDescription').value;
+    const deadline = document.getElementById('taskDeadline').value;
+    const priority = document.getElementById('taskPriority').value;
+    const status = document.getElementById('taskStatus').value;
+    const reminder = document.getElementById('taskReminder').value;
+    const color = document.getElementById('taskColor').value;
 
-// Add new Column
-document.addEventListener("DOMContentLoaded", function () {
-    const kanbanBoard = document.getElementById("kanbanBoard");
-    const addColumnButton = document.getElementById("addColumn");
+    const newTask = { title, description, deadline, priority, status, reminder, color };
 
-    addColumnButton.addEventListener("click", function () {
-        const newColumn = document.createElement("div");
-        newColumn.className = "kanban-column pending-column";
-        newColumn.classList.add("col-md-3");
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newTask),
+        });
 
-        // Create the column structure with confirmation and cancel buttons
-        newColumn.innerHTML = `
-            <div class="kanban-header">
-                <input type="text" placeholder="Enter column name" class="column-title-input" id="columnTitle">
-                <button class="btn btn-sm btn-success confirm-column">Confirm</button>
-                <button class="btn btn-sm btn-danger cancel-column">Cancel</button>
-            </div>
-        `;
-        kanbanBoard.appendChild(newColumn);
+        if (response.ok) {
+            const savedTask = await response.json();
+            const taskElement = createTaskElement(savedTask);
 
-        const input = newColumn.querySelector(".column-title-input");
-        input.focus();
-
-        // Add event listeners for Confirm and Cancel buttons
-        const confirmButton = newColumn.querySelector(".confirm-column");
-        const cancelButton = newColumn.querySelector(".cancel-column");
-        confirmButton.disabled = true;
-
-
-        // Enable confirmation button when input field is not empty
-        input.addEventListener("input", () => {
-            if (input.value.trim() !== "") { 
-                confirmButton.disabled = false;
-            } else {
-                confirmButton.disabled = true; 
+            // Добавляем задачу в соответствующую колонку
+            if (savedTask.status === 'In plan') {
+                inPlanColumn.appendChild(taskElement);
+            } else if (savedTask.status === 'In progress') {
+                inProgressColumn.appendChild(taskElement);
+            } else if (savedTask.status === 'Done') {
+                doneColumn.appendChild(taskElement);
             }
-        });
-        
-        // Add Column after confirmation
-        confirmButton.addEventListener("click", function () {
-            const columnName = input.value.trim();
-            if (columnName) {
-                // Set the column name and finalize its structure
-                newColumn.classList.remove("pending-column");
-                newColumn.querySelector(".kanban-header").innerHTML = `
-                    <input type="text" value="${input.value}" id="columnTitle">
-                    <i class="fa-solid fa-pen-to-square" id="columnEditButton""></i>
-                `;
-                const addTaskButton = document.createElement("button");
-                addTaskButton.className = "btn btn-sm btn-outline-primary mb-3";
-                addTaskButton.id = "addTask";
-                addTaskButton.textContent = "+ Add Task";
-                addTaskButton.onclick = function () {
-                    showTaskPopup(this);
-                };
-                newColumn.appendChild(addTaskButton);
-            }
-        });
-        
-        // Remove column if cancel button is clicked
-        cancelButton.addEventListener("click", function () {
-            kanbanBoard.removeChild(newColumn);
-        });
+
+            // Закрываем модальное окно
+            const modal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
+            modal.hide();
+        } else {
+            console.error('Ошибка создания задачи:', await response.text());
+        }
+    } catch (error) {
+        console.error('Ошибка при добавлении задачи:', error);
+    }
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', () => {
+    loadTasks();
+    document.getElementById('taskForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        addTask();
     });
 });
-

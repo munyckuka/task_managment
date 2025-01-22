@@ -5,7 +5,7 @@ const taskSchema = new mongoose.Schema({
     description: { type: String },
     deadline: { type: Date },
     priority: { type: String, enum: ['Urgent', 'Medium', 'Low priority'], required: true },
-    groupName: { type: String, required: true },
+    status: { type: String, enum: ['In plan', 'In progress', 'Done'], required: true },
     color: { type: String, default: '#fff' },
     reminder: { type: String, required: true},
     createdAt: { type: Date, default: Date.now },
