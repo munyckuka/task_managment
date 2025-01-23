@@ -1,5 +1,7 @@
 // URL для API
 const API_URL = '/api/tasks';
+let tasks = []; // Глобальный массив для хранения задач
+
 
 // Элементы колонок
 const inPlanColumn = document.getElementById('inPlanColumn').querySelector('.task-container');
@@ -10,7 +12,7 @@ const doneColumn = document.getElementById('doneColumn').querySelector('.task-co
 async function loadTasks() {
     try {
         const response = await fetch(API_URL);
-        const tasks = await response.json();
+        tasks = await response.json();
         renderTasks(tasks);
     } catch (error) {
         console.error('Ошибка загрузки задач:', error);
@@ -41,6 +43,17 @@ function createTaskElement(task) {
     const taskDiv = document.createElement('div');
     taskDiv.className = 'task card mb-2';
     taskDiv.style.backgroundColor = task.color || '#fff';
+    // уникальный идентификатор задачи в качестве атрибута
+    taskDiv.setAttribute('data-task-id', task._id);
+
+
+    // Добавляем атрибуты для drag-and-drop
+    taskDiv.setAttribute('draggable', 'true');
+    taskDiv.addEventListener('dragstart', (event) => dragTask(event, task._id));
+
+    // Добавляем событие для редактирования задачи
+    taskDiv.addEventListener('click', () => showEditTaskPopup(task._id));
+
     taskDiv.innerHTML = `
         <div class="card-body">
             <h5 class="card-title">${task.title}</h5>
@@ -53,53 +66,66 @@ function createTaskElement(task) {
 
 // Отображение модального окна для добавления задачи
 function showTaskPopup(status) {
-    const modal = new bootstrap.Modal(document.getElementById('taskModal'));
-    document.getElementById('taskStatus').value = status; // Устанавливаем статус задачи
-    modal.show();
+    // Устанавливаем значение статуса (по умолчанию)
+    const taskForm = document.getElementById('taskForm');
+    taskForm.reset(); // Сбрасываем форму
+
+    // Сохраняем статус в атрибуте или скрытом поле
+    taskForm.dataset.status = status;
+
+    // Показываем модальное окно
+    const taskModal = new bootstrap.Modal(document.getElementById('taskModal'));
+    taskModal.show();
 }
 
-// Добавление новой задачи
-async function addTask() {
-    const title = document.getElementById('taskTitle').value;
-    const description = document.getElementById('taskDescription').value;
-    const deadline = document.getElementById('taskDeadline').value;
-    const priority = document.getElementById('taskPriority').value;
-    const status = document.getElementById('taskStatus').value;
-    const reminder = document.getElementById('taskReminder').value;
-    const color = document.getElementById('taskColor').value;
 
-    const newTask = { title, description, deadline, priority, status, reminder, color };
+// Добавление новой задачи
+async function addTask(event) {
+    event.preventDefault(); // Останавливаем стандартное поведение
+
+    const taskForm = document.getElementById('taskForm');
+    const status = taskForm.dataset.status; // Получаем статус из скрытого атрибута
+
+    const taskData = {
+        title: document.getElementById('taskTitle').value,
+        description: document.getElementById('taskDescription').value,
+        deadline: document.getElementById('taskDeadline').value,
+        priority: document.getElementById('taskPriority').value,
+        reminder: document.getElementById('taskReminder').value,
+        color: document.getElementById('taskColor').value,
+        status: status,
+    };
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch('/api/tasks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newTask),
+            body: JSON.stringify(taskData),
         });
 
         if (response.ok) {
-            const savedTask = await response.json();
-            const taskElement = createTaskElement(savedTask);
-
-            // Добавляем задачу в соответствующую колонку
-            if (savedTask.status === 'In plan') {
-                inPlanColumn.appendChild(taskElement);
-            } else if (savedTask.status === 'In progress') {
-                inProgressColumn.appendChild(taskElement);
-            } else if (savedTask.status === 'Done') {
-                doneColumn.appendChild(taskElement);
-            }
-
-            // Закрываем модальное окно
-            const modal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
-            modal.hide();
+            const newTask = await response.json();
+            addTaskToUI(newTask); // Добавляем задачу в интерфейс
+            const taskModal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
+            taskModal.hide(); // Закрываем модальное окно
         } else {
             console.error('Ошибка создания задачи:', await response.text());
         }
     } catch (error) {
-        console.error('Ошибка при добавлении задачи:', error);
+        console.error('Ошибка отправки задачи:', error);
     }
 }
+function addTaskToUI(task) {
+    const columnId = task.status === 'In plan' ? 'inPlanColumn'
+        : task.status === 'In progress' ? 'inProgressColumn'
+            : 'doneColumn';
+
+    const column = document.getElementById(columnId).querySelector('.task-container');
+
+    const taskElement = createTaskElement(task); // Создаем HTML задачи
+    column.appendChild(taskElement);
+}
+
 // Разрешить сброс (drop) элемента
 function allowDrop(event) {
     event.preventDefault();
@@ -133,23 +159,112 @@ async function dropTask(event, newStatus) {
         console.error('Ошибка при обновлении статуса:', error);
     }
 }
+function moveTaskInUI(taskId, targetColumn) {
+    const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+    const targetColumnElement = document.getElementById(targetColumn);
 
-// Создать DOM-элемент задачи (обновлено для Drag-and-Drop)
-function createTaskElement(task) {
-    const taskDiv = document.createElement('div');
-    taskDiv.className = 'task card mb-2';
-    taskDiv.draggable = true; // Сделать задачу перетаскиваемой
-    taskDiv.style.backgroundColor = task.color || '#fff';
-    taskDiv.setAttribute('ondragstart', `dragTask(event, '${task._id}')`);
-    taskDiv.innerHTML = `
-        <div class="card-body">
-            <h5 class="card-title">${task.title}</h5>
-            <p class="card-text">${task.description || ''}</p>
-            <p class="card-text"><small class="text-muted">Deadline: ${new Date(task.deadline).toLocaleDateString()}</small></p>
-        </div>
-    `;
-    return taskDiv;
+    if (taskElement && targetColumnElement) {
+        targetColumnElement.appendChild(taskElement);
+    }
 }
+
+// отображение DOM формы
+function showEditTaskPopup(taskId) {
+    // Найти задачу по ID (можно использовать данные, сохраненные на клиенте, или запросить сервер)
+    const task = tasks.find(t => t._id === taskId); // Предполагается, что есть массив `tasks`
+    if (task) {
+        // Заполняем форму данными задачи
+        document.getElementById('taskTitleEdit').value = task.title;
+        document.getElementById('taskDescriptionEdit').value = task.description;
+        document.getElementById('taskDeadlineEdit').value = task.deadline ? new Date(task.deadline).toISOString().split('T')[0] : '';
+        document.getElementById('taskPriorityEdit').value = task.priority;
+        document.getElementById('taskFormEdit').dataset.taskId = taskId;
+
+
+        // Показываем модальное окно
+        const taskEditModal = new bootstrap.Modal(document.getElementById('taskEditModal'));
+        taskEditModal.show();
+    }
+}
+//  изменить задачу
+async function updateTask(event) {
+
+    event.preventDefault();
+
+    const taskForm = document.getElementById('taskFormEdit');
+    const taskId = taskForm.dataset.taskId; // Получаем ID задачи
+
+    const updatedTask = {
+        title: document.getElementById('taskTitleEdit').value,
+        description: document.getElementById('taskDescriptionEdit').value,
+        deadline: document.getElementById('taskDeadlineEdit').value,
+        priority: document.getElementById('taskPriorityEdit').value,
+
+    };
+
+    try {
+        const response = await fetch(`/api/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedTask),
+        });
+
+        if (response.ok) {
+            const updatedTaskData = await response.json();
+            console.log('Id test: ', updatedTaskData)
+            updateTaskInUI(updatedTaskData); // Обновляем задачу в UI
+            const taskEditModal = bootstrap.Modal.getInstance(document.getElementById('taskEditModal'));
+            taskEditModal.hide(); // Закрываем модальное окно
+
+        } else {
+            console.error('Ошибка обновления задачи:', await response.text());
+        }
+    } catch (error) {
+        console.error('Ошибка при отправке изменений:', error);
+    }
+}
+// удалить задачу
+async function deleteTask(event) {
+    event.preventDefault();
+
+    const taskForm = document.getElementById('taskFormEdit');
+    const taskId = taskForm.dataset.taskId; // Получаем ID задачи
+    console.log('Task ID:', taskId);
+
+    try {
+        const response = await fetch(`/api/tasks/${taskId}`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            removeTaskFromUI(taskId); // Удаляем задачу из UI
+            const taskEditModal = bootstrap.Modal.getInstance(document.getElementById('taskEditModal'));
+            taskEditModal.hide(); // Закрываем модальное окно
+        } else {
+            console.error('Ошибка удаления задачи:', await response.text());
+        }
+    } catch (error) {
+        console.error('Ошибка при удалении задачи:', error);
+    }
+}
+function updateTaskInUI(updatedTask) {
+    const taskElement = document.querySelector(`[data-task-id="${updatedTask._id}"]`);
+    if (taskElement) {
+        // Обновляем содержимое задачи
+        taskElement.querySelector('.task-title').textContent = updatedTask.title;
+        taskElement.querySelector('.task-priority').textContent = updatedTask.priority;
+    }
+}
+
+function removeTaskFromUI(taskId) {
+    const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+    if (taskElement) {
+        taskElement.remove();
+    }
+}
+
+
+
 
 
 // Инициализация

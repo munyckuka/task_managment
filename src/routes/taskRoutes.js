@@ -28,4 +28,28 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+router.put('/:id', async (req, res) => {
+    try {
+        const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updatedTask) {
+            return res.status(404).json({ error: 'Задача не найдена' });
+        }
+        res.json(updatedTask);
+    } catch (error) {
+        res.status(500).json({ error: 'Ошибка при обновлении задачи' });
+    }
+});
+router.delete('/:id', async (req, res) => {
+    try {
+        const deletedTask = await Task.findByIdAndDelete(req.params.id);
+        if (!deletedTask) {
+            return res.status(404).json({ error: 'Задача не найдена' });
+        }
+        res.json({ message: 'Задача успешно удалена' });
+    } catch (error) {
+        res.status(500).json({ error: 'Ошибка при удалении задачи' });
+    }
+});
+
+
 module.exports = router;
