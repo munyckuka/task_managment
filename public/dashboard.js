@@ -250,9 +250,8 @@ async function deleteTask(event) {
 function updateTaskInUI(updatedTask) {
     const taskElement = document.querySelector(`[data-task-id="${updatedTask._id}"]`);
     if (taskElement) {
-        // Обновляем содержимое задачи
-        taskElement.querySelector('.task-title').textContent = updatedTask.title;
-        taskElement.querySelector('.task-priority').textContent = updatedTask.priority;
+        taskElement.remove()
+        addTaskToUI(updatedTask)
     }
 }
 
@@ -260,6 +259,33 @@ function removeTaskFromUI(taskId) {
     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
     if (taskElement) {
         taskElement.remove();
+    }
+}
+
+// убрать в архив
+document.getElementById('archiveDoneButton').addEventListener('click', archiveDoneTasks);
+
+async function archiveDoneTasks() {
+    try {
+        // Отправляем запрос на сервер для архивации задач из колонки Done
+        const response = await fetch('/api/tasks/archive-done', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (response.ok) {
+            const archivedTasks = await response.json();
+            console.log('Archived Tasks:', archivedTasks);
+
+            // Удаляем задачи из UI
+            archivedTasks.forEach(task => removeTaskFromUI(task._id));
+
+            alert('Done tasks successfully archived!');
+        } else {
+            console.error('Ошибка архивации:', await response.text());
+        }
+    } catch (error) {
+        console.error('Ошибка при архивации задач:', error);
     }
 }
 
