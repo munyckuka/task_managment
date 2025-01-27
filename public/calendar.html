@@ -47,84 +47,9 @@
                 </tr>
             </thead>
             <tbody id="calendarBody">
-                <!-- Calendar rows will be dynamically generated here -->
+                <!-- строки будут сгенерированы тут -->
             </tbody>
         </table>
     </div>
-    <script>
-        const calendarBody = document.getElementById("calendarBody");
-        const monthYear = document.getElementById("monthYear");
-        const prevMonth = document.getElementById("prevMonth");
-        const nextMonth = document.getElementById("nextMonth");
-
-        let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
-
-        function generateCalendar(month, year) {
-            // Clear previous calendar
-            calendarBody.innerHTML = "";
-
-            // Set the month and year heading
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            monthYear.textContent = `${monthNames[month]} ${year}`;
-
-            // Determine the first day of the month and number of days in the month
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            // Create calendar rows
-            let date = 1;
-            for (let i = 0; i < 6; i++) {
-                const row = document.createElement("tr");
-                let isEmptyRow = true;
-
-                for (let j = 0; j < 7; j++) {
-                    const cell = document.createElement("td");
-                    const dayNumber = document.createElement("span");
-                    dayNumber.classList.add("td-dayNumber");
-                    
-
-                    if (i === 0 && j < firstDay) {
-                        dayNumber.textContent = "";
-                    } else if (date > daysInMonth) {
-                        dayNumber.textContent = "";
-                    } else {
-                        dayNumber.textContent = date;
-                        date++;
-                    }
-
-                    cell.appendChild(dayNumber);
-                    row.appendChild(cell);
-                }
-                calendarBody.appendChild(row);
-                if (isEmptyRow && date > daysInMonth) {
-                    break;
-                }
-
-            }
-        }
-
-        // Event listeners for navigation buttons
-        prevMonth.addEventListener("click", () => {
-            currentMonth--;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            }
-            generateCalendar(currentMonth, currentYear);
-        });
-
-        nextMonth.addEventListener("click", () => {
-            currentMonth++;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            generateCalendar(currentMonth, currentYear);
-        });
-
-        // Generate initial calendar
-        generateCalendar(currentMonth, currentYear);
-    </script>
 </body>
 </html>
