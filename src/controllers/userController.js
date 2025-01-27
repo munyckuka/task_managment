@@ -33,36 +33,55 @@ exports.loginUser = async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Неверный email или пароль' });
         }
 
-        // Проверяем пароль
-        const isMatch = await compare(password, user.password);
+        // Проверка пароля (если пароли хранятся в хэшированном виде)
+        const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Неверный email или пароль' });
         }
 
-        // Создаем JWT
-        const token = jwt.sign({ id: user._id }, process.env.SESSION_SECRET, { expiresIn: '1h' });
-
-        res.status(200).json({ token });
+        // Создание сессии через req.login
+        req.login(user, (err) => {
+            if (err) {
+                console.error('Ошибка при создании сессии:', err);
+                return res.status(500).json({ message: 'Ошибка авторизации' });
+            }
+            res.status(200).json({ message: 'Вы успешно вошли в систему', user });
+        });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Error logging in user' });
+        res.status(500).json({ message: 'Ошибка сервера' });
     }
 };
 
+
 // Получение профиля пользователя
 exports.getUserProfile = (req, res) => {
-    if (!req.user) {
-        return res.status(401).json({ message: 'Unauthorized' });
+    try {
+        // Информация о пользователе доступна в req.user благодаря Passport.js
+        const user = req.user;
+
+        // Отправляем данные профиля пользователя
+        res.status(200).json({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            googleId: user.googleId,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Ошибка при загрузке профиля' });
     }
-    res.json(req.user);
 };
 
 // Обработка Google OAuth
 exports.googleCallback = (req, res) => {
-    // После успешной аутентификации возвращаем JWT
-    const token = jwt.sign({ id: req.user._id }, process.env.SESSION_SECRET, { expiresIn: '1h' });
-    res.redirect(`/dashboard?token=${token}`); // Редирект с токеном
+    req.login(req.user, (err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Ошибка авторизации через Google' });
+        }
+        res.redirect('/dashboard');
+    });
 };

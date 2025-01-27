@@ -2,9 +2,110 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .profile-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        .profile-container h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .profile-container p {
+            margin: 10px 0;
+            color: #555;
+        }
+
+        .logout-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
 <body>
+<div class="profile-container">
+    <h1>Профиль пользователя</h1>
+    <p><strong>Имя:</strong> <span id="name">Загрузка...</span></p>
+    <p><strong>Email:</strong> <span id="email">Загрузка...</span></p>
+    <p><strong>Google ID:</strong> <span id="googleId">Загрузка...</span></p>
+    <button class="logout-btn" onclick="logout()">Выйти</button>
+</div>
 
+<script>
+    // Функция для получения данных профиля
+    async function fetchProfile() {
+        try {
+            const response = await fetch('http://localhost:5000/api/users/profile', {
+                method: 'GET',
+                credentials: 'include', // Для работы с сессиями
+            });
+            if (!response.ok) {
+                throw new Error('Не удалось загрузить данные профиля');
+            }
+
+            const data = await response.json();
+            document.getElementById('name').textContent = data.name;
+            document.getElementById('email').textContent = data.email;
+            document.getElementById('googleId').textContent = data.googleId;
+        } catch (error) {
+            console.error(error);
+            document.querySelector('.profile-container').innerHTML = `
+                    <h1>Ошибка</h1>
+                    <p>Не удалось загрузить профиль. Пожалуйста, попробуйте снова.</p>
+                `;
+        }
+    }
+
+    // Функция выхода из профиля
+    async function logout() {
+        try {
+            const response = await fetch('http://localhost:5000/api/users/logout', {
+                method: 'GET',
+                credentials: 'include', // Чтобы отправить cookie с сессией
+            });
+
+            if (response.ok) {
+                window.location.href = '/auth'; // Перенаправляем на страницу авторизации
+            } else {
+                console.error('Ошибка при выходе из аккаунта');
+            }
+        } catch (error) {
+            console.error('Ошибка при запросе на выход:', error);
+        }
+    }
+
+
+    // Загружаем профиль при загрузке страницы
+    fetchProfile();
+</script>
 </body>
 </html>

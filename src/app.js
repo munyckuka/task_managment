@@ -46,6 +46,10 @@ app.get('/dashboard', (req, res) => {
 app.get('/auth', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'loginRegistrationPage.html'));
 });
+// Маршрут для профиля
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'profile.html'));
+});
 
 // Запуск сервера
 const PORT = process.env.PORT || 5000;
