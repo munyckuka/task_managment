@@ -1,0 +1,149 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+h1{
+    font-size: 36px !important;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #5a4a4a;
+    color: #fff;
+    padding: 10px 20px;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+}
+
+.nav-links li {
+    margin-left: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 16px;
+}
+
+#sidebar {
+    height: 100vh;
+    width: 250px;
+    background: #f8f9fa;
+    position: fixed;
+    padding: 20px;
+    box-shadow: #9e9e9e 0px 0px 5px;
+}
+
+.main {
+    margin-left: 250px;
+    padding: 1rem;
+
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.header button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.header button:hover {
+    background-color: #0056b3;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    margin-bottom: 1rem;
+    table-layout: fixed;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 1rem;
+    vertical-align: top;
+    position: relative;
+}
+
+th {
+    background-color: #f9f9f9;
+    font-weight: bold;
+    width: ;
+}
+
+.td-dayNumber{
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    font-size: .8rem;
+    color: #007bff;
+}
+
+.task {
+    background-color: #f1f1f1;
+    border-left: 4px solid #007bff;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.task span {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.nav-buttons button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.nav-buttons button:hover {
+    background-color: #0056b3;
+}

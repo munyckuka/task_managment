@@ -4,175 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo Calendar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-
-        .sidebar {
-            width: 20%;
-            background-color: #fff;
-            border-right: 1px solid #ddd;
-            padding: 1rem;
-        }
-
-        .sidebar h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-        }
-
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .sidebar ul li {
-            margin: 1rem 0;
-        }
-
-        .sidebar ul li a {
-            text-decoration: none;
-            color: #555;
-            font-weight: 500;
-            display: block;
-        }
-
-        .sidebar ul li a:hover {
-            color: #007bff;
-        }
-
-        .main {
-            width: 80%;
-            padding: 1rem;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            margin: 0;
-        }
-
-        .header button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .header button:hover {
-            background-color: #0056b3;
-        }
-
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            background-color: #ddd;
-            border: 1px solid #ddd;
-        }
-
-        .day {
-            background-color: #fff;
-            padding: 1rem;
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .day-header {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .task {
-            background-color: #f1f1f1;
-            border-left: 4px solid #007bff;
-            margin-bottom: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
-
-        .task span {
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .day:hover {
-            background-color: #f9f9f9;
-        }
-
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .nav-buttons button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .nav-buttons button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/calendar.css">
 </head>
 <body>
-    <div class="container">
-        <div class="sidebar">
-            <h2>Menu</h2>
-            <ul>
-                <li><a href="#">Inbox</a></li>
-                <li><a href="#">Today</a></li>
-                <li><a href="#">Upcoming</a></li>
-            </ul>
+    <div id="sidebar">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5>Profile</h5>
+            <i class="fas fa-user-circle"></i>
         </div>
-        <div class="main">
-            <div class="header">
-                <h1>March 2024</h1>
-                <button>Add Task</button>
-            </div>
-            <div class="nav-buttons">
-                <button>&lt; Previous</button>
-                <button>Next &gt;</button>
-            </div>
-            <div class="calendar">
-                <!-- Example Day with Tasks -->
-                <div class="day">
-                    <div class="day-header">1</div>
-                    <div class="task"><span>9 AM</span> Team Meeting</div>
-                </div>
-                <div class="day">
-                    <div class="day-header">2</div>
-                    <div class="task"><span>10 AM</span> Project Review</div>
-                </div>
-                <!-- Add more days as necessary -->
-            </div>
-        </div>
+        <button class="btn btn-outline-primary w-100 mb-2">Manage Profile</button>
+        <button class="btn btn-outline-danger w-100 mb-4">Leave</button>
+        <nav>
+            <a href="#" class="btn btn-outline-secondary w-100 mb-2">Home</a>
+            <a href="#" class="btn btn-outline-secondary w-100 mb-2">Statistics</a>
+            <a href="calendar.html" class="btn btn-outline-secondary w-100 mb-2">Calendar</a>
+            <a href="dashboard.html" class="btn btn-outline-secondary w-100">Dashboard</a>
+        </nav>
     </div>
+    
+    <div class="main">
+        <div class="header">
+            <h1 id="monthYear">March 2024</h1>
+            <button>Add Task</button>
+        </div>
+        <div class="nav-buttons">
+            <button id="prevMonth">&lt; Previous</button>
+            <button id="nextMonth">Next &gt;</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sunday</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
+                </tr>
+            </thead>
+            <tbody id="calendarBody">
+                <!-- Calendar rows will be dynamically generated here -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const calendarBody = document.getElementById("calendarBody");
+        const monthYear = document.getElementById("monthYear");
+        const prevMonth = document.getElementById("prevMonth");
+        const nextMonth = document.getElementById("nextMonth");
+
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+
+        function generateCalendar(month, year) {
+            // Clear previous calendar
+            calendarBody.innerHTML = "";
+
+            // Set the month and year heading
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            monthYear.textContent = `${monthNames[month]} ${year}`;
+
+            // Determine the first day of the month and number of days in the month
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Create calendar rows
+            let date = 1;
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement("tr");
+                let isEmptyRow = true;
+
+                for (let j = 0; j < 7; j++) {
+                    const cell = document.createElement("td");
+                    const dayNumber = document.createElement("span");
+                    dayNumber.classList.add("td-dayNumber");
+                    
+
+                    if (i === 0 && j < firstDay) {
+                        dayNumber.textContent = "";
+                    } else if (date > daysInMonth) {
+                        dayNumber.textContent = "";
+                    } else {
+                        dayNumber.textContent = date;
+                        date++;
+                    }
+
+                    cell.appendChild(dayNumber);
+                    row.appendChild(cell);
+                }
+                calendarBody.appendChild(row);
+                if (isEmptyRow && date > daysInMonth) {
+                    break;
+                }
+
+            }
+        }
+
+        // Event listeners for navigation buttons
+        prevMonth.addEventListener("click", () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            generateCalendar(currentMonth, currentYear);
+        });
+
+        nextMonth.addEventListener("click", () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            generateCalendar(currentMonth, currentYear);
+        });
+
+        // Generate initial calendar
+        generateCalendar(currentMonth, currentYear);
+    </script>
 </body>
 </html>
