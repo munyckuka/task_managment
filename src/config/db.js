@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 
+require('dotenv').config();
+
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI);
+        await mongoose.connect("mongodb://127.0.0.1:27017/tasker-app");
         console.log('MongoDB подключена успешно!');
     } catch (error) {
         console.error('Ошибка подключения к MongoDB:', error.message);
