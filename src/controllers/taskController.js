@@ -6,7 +6,7 @@ const ArchivedTask = require("../models/ArchivedTaskModel");
 // Получить список задач
 const getTasks = async (req, res) => {
     try {
-        const tasks = await Task.find();
+        const tasks = await Task.find({user: req.user._id});
         res.status(200).json(tasks);
     } catch (error) {
         res.status(500).json({ message: 'Ошибка получения задач', error });
@@ -16,13 +16,20 @@ const getTasks = async (req, res) => {
 // Создать новую задачу
 const createTask = async (req, res) => {
     try {
-        const task = new Task(req.body);
+        const taskData = {
+            ...req.body,
+            user: req.user._id, // Привязываем задачу к текущему пользователю
+        };
+
+        const task = new Task(taskData);
         const savedTask = await task.save();
         res.status(201).json(savedTask);
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: 'Ошибка создания задачи', error });
     }
 };
+
 
 // Обновить задачу
 const updateTask = async (req, res) => {

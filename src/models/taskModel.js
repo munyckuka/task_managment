@@ -9,6 +9,8 @@ const taskSchema = new mongoose.Schema({
     color: { type: String, default: '#fff' },
     reminder: { type: String, required: true},
     createdAt: { type: Date, default: Date.now },
+    user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true,},
+    dashboard: { type: mongoose.Schema.Types.ObjectId, ref: 'Dashboard', required: true }, // Привязка к доске
 });
 
 module.exports = mongoose.model('Task', taskSchema);

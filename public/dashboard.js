@@ -289,7 +289,23 @@ async function archiveDoneTasks() {
     }
 }
 
+// Функция выхода из профиля
+async function logout() {
+    try {
+        const response = await fetch('http://localhost:5000/api/users/logout', {
+            method: 'GET',
+            credentials: 'include', // Чтобы отправить cookie с сессией
+        });
 
+        if (response.ok) {
+            window.location.href = '/auth'; // Перенаправляем на страницу авторизации
+        } else {
+            console.error('Ошибка при выходе из аккаунта');
+        }
+    } catch (error) {
+        console.error('Ошибка при запросе на выход:', error);
+    }
+}
 
 
 
