@@ -11,8 +11,7 @@ const doneColumn = document.getElementById('doneColumn').querySelector('.task-co
 // Загрузка задач с сервера
 async function loadTasks(dashboardId) {
     try {
-        window.location.href = `/dashboard/${dashboardId}`; // Перенаправляем на страницу доски
-        const response = await fetch(API_URL);
+        const response = await fetch(`/api/tasks/${dashboardId}`);
         tasks = await response.json();
         renderTasks(tasks);
     } catch (error) {
@@ -95,6 +94,7 @@ async function addTask(event) {
         reminder: document.getElementById('taskReminder').value,
         color: document.getElementById('taskColor').value,
         status: status,
+        dashboard: window.location.pathname.split('/')[2],
     };
 
     try {
@@ -151,8 +151,8 @@ async function dropTask(event, newStatus) {
         });
 
         if (response.ok) {
-            // Перезагружаем задачи после обновления
-            loadTasks();
+            const dashboardId = window.location.pathname.split('/')[2]; // Получаем ID из URL
+            loadTasks(dashboardId); // Перезагружаем задачи для текущей доски
         } else {
             console.error('Ошибка обновления статуса задачи:', await response.text());
         }
@@ -353,7 +353,8 @@ async function createDashboard() {
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
-    loadTasks();
+    const dashboardId = window.location.pathname.split('/')[2]; // Получаем ID из URL
+    loadTasks(dashboardId); // Перезагружаем задачи для текущей доски
     document.getElementById('taskForm').addEventListener('submit', (e) => {
         e.preventDefault();
         addTask();
