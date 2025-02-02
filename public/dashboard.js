@@ -308,53 +308,42 @@ async function logout() {
     }
 }
 
+const DASHBOARD_URL = '/api/dashboards';
+let dashboards = []; // Глобальный массив для хранения дашбордов
+
+// Контейнеры
+const dashboardList = document.getElementById('dashboardList');
+
+// Загрузка и отображение всех дашбордов
 async function loadDashboards() {
     try {
-        const response = await fetch('/api/dashboards', { method: 'GET' });
-        if (!response.ok) throw new Error('Ошибка загрузки досок');
-
-        const dashboards = await response.json();
-        const dashboardList = document.getElementById('dashboardList');
-        dashboardList.innerHTML = ''; // Очищаем перед добавлением новых
-
-        dashboards.forEach(dashboard => {
-            const button = document.createElement('button');
-            button.className = 'btn btn-outline-secondary w-100 mb-2';
-            button.textContent = dashboard.name;
-            button.onclick = () => loadTasks(dashboard._id);
-            dashboardList.appendChild(button);
-        });
+        const response = await fetch(DASHBOARD_URL);
+        dashboards = await response.json();
+        renderDashboards();
     } catch (error) {
-        console.error('Ошибка загрузки досок:', error);
+        console.error('Ошибка загрузки дашбордов:', error);
     }
 }
 
-// Функция создания новой доски
-async function createDashboard() {
-    const name = prompt('Введите название новой доски:');
-    if (!name) return;
+// Отображение дашбордов
+function renderDashboards() {
+    dashboardList.innerHTML = '';
 
-    try {
-        const response = await fetch('/api/dashboards', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name }),
-        });
-
-        if (!response.ok) throw new Error('Ошибка создания доски');
-
-        loadDashboards(); // Перезагружаем список досок
-    } catch (error) {
-        console.error('Ошибка при создании доски:', error);
-    }
+    dashboards.forEach(dashboard => {
+        const sidebarElement = document.createElement('a');
+        sidebarElement.href = `/dashboard/${dashboard._id}`;
+        sidebarElement.className = 'btn btn-outline-secondary w-100 mb-2';
+        sidebarElement.textContent = dashboard.name;
+        dashboardList.appendChild(sidebarElement);
+    });
 }
-
 
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     const dashboardId = window.location.pathname.split('/')[2]; // Получаем ID из URL
     loadTasks(dashboardId); // Перезагружаем задачи для текущей доски
+    loadDashboards()
     document.getElementById('taskForm').addEventListener('submit', (e) => {
         e.preventDefault();
         addTask();
