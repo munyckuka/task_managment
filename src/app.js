@@ -6,6 +6,7 @@ const path = require('path');
 const connectDB = require('./config/db');
 const taskRoutes = require('./routes/taskRoutes');
 const authRoutes = require('./routes/userRoutes'); // Роуты для авторизации
+const { isAuthenticated } = require('./middleware/authMiddleware');
 
 dotenv.config();
 
@@ -36,11 +37,18 @@ app.use(passport.session());
 // Роуты API
 app.use('/api/tasks', taskRoutes); // Роуты для задач
 app.use('/api/users', authRoutes); // Роуты для авторизации
+const dashboardRoutes = require('./routes/dashboardRoutes');
+app.use('/api/dashboards', dashboardRoutes);
 
-// Маршрут для дашборда
+
 app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'dashboardHome.html'));
+});
+
+app.get('/dashboard/:id', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'dashboard.html'));
 });
+
 
 // Маршрут для страницы регистрации и логина
 app.get('/auth', (req, res) => {

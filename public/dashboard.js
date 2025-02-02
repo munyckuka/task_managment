@@ -9,8 +9,9 @@ const inProgressColumn = document.getElementById('inProgressColumn').querySelect
 const doneColumn = document.getElementById('doneColumn').querySelector('.task-container');
 
 // Загрузка задач с сервера
-async function loadTasks() {
+async function loadTasks(dashboardId) {
     try {
+        window.location.href = `/dashboard/${dashboardId}`; // Перенаправляем на страницу доски
         const response = await fetch(API_URL);
         tasks = await response.json();
         renderTasks(tasks);
@@ -304,6 +305,47 @@ async function logout() {
         }
     } catch (error) {
         console.error('Ошибка при запросе на выход:', error);
+    }
+}
+
+async function loadDashboards() {
+    try {
+        const response = await fetch('/api/dashboards', { method: 'GET' });
+        if (!response.ok) throw new Error('Ошибка загрузки досок');
+
+        const dashboards = await response.json();
+        const dashboardList = document.getElementById('dashboardList');
+        dashboardList.innerHTML = ''; // Очищаем перед добавлением новых
+
+        dashboards.forEach(dashboard => {
+            const button = document.createElement('button');
+            button.className = 'btn btn-outline-secondary w-100 mb-2';
+            button.textContent = dashboard.name;
+            button.onclick = () => loadTasks(dashboard._id);
+            dashboardList.appendChild(button);
+        });
+    } catch (error) {
+        console.error('Ошибка загрузки досок:', error);
+    }
+}
+
+// Функция создания новой доски
+async function createDashboard() {
+    const name = prompt('Введите название новой доски:');
+    if (!name) return;
+
+    try {
+        const response = await fetch('/api/dashboards', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }),
+        });
+
+        if (!response.ok) throw new Error('Ошибка создания доски');
+
+        loadDashboards(); // Перезагружаем список досок
+    } catch (error) {
+        console.error('Ошибка при создании доски:', error);
     }
 }
 

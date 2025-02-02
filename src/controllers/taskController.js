@@ -6,27 +6,37 @@ const ArchivedTask = require("../models/ArchivedTaskModel");
 // Получить список задач
 const getTasks = async (req, res) => {
     try {
-        const tasks = await Task.find({user: req.user._id});
-        res.status(200).json(tasks);
+        const { dashboardId } = req.params;
+        const tasks = await Task.find({ user: req.user._id, dashboard: dashboardId });
+        res.json(tasks);
     } catch (error) {
-        res.status(500).json({ message: 'Ошибка получения задач', error });
+        res.status(500).json({ message: 'Ошибка при получении задач', error });
     }
 };
 
 // Создать новую задачу
 const createTask = async (req, res) => {
     try {
-        const taskData = {
-            ...req.body,
-            user: req.user._id, // Привязываем задачу к текущему пользователю
-        };
+        const { title, description, deadline, priority, reminder, color, status, dashboard } = req.body;
 
-        const task = new Task(taskData);
-        const savedTask = await task.save();
-        res.status(201).json(savedTask);
+        if (!dashboard) return res.status(400).json({ message: 'Доска обязательна' });
+
+        const newTask = new Task({
+            title,
+            description,
+            deadline,
+            priority,
+            reminder,
+            color,
+            status,
+            dashboard,
+            user: req.user._id,
+        });
+
+        await newTask.save();
+        res.status(201).json(newTask);
     } catch (error) {
-        console.error(error);
-        res.status(400).json({ message: 'Ошибка создания задачи', error });
+        res.status(500).json({ message: 'Ошибка при создании задачи', error });
     }
 };
 
@@ -56,6 +66,7 @@ const deleteTask = async (req, res) => {
         res.status(500).json({ error: 'Ошибка при удалении задачи' });
     }
 };
+
 // Получение задачи по ID
 const getTaskById = async (req, res) => {
     const { id } = req.params;
