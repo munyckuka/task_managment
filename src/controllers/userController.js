@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const {compare} = require("bcrypt");
+const {compare} = require("bcryptjs");
 
 
 // Регистрация

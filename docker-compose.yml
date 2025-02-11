@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: task_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb+srv://ofblooms:IB3ymrXGg2TK8rT4@taskmanagment.gfwk1.mongodb.net/?retryWrites=true&w=majority&appName=taskManagment
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
