@@ -6,40 +6,53 @@
     <title>Kanban Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="/public/styles/dashboard.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
 </head>
 <body>
-
 <div id="sidebar">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h5>Profile</h5>
         <i class="fas fa-user-circle"></i>
     </div>
-    <button class="btn btn-outline-primary w-100 mb-2">Manage Profile</button>
-    <button class="btn btn-outline-danger w-100 mb-4">Leave</button>
+    <a href="/profile"> <button class="btn btn-outline-primary w-100 mb-2">Manage Profile</button></a>
+    <button class="btn btn-outline-danger w-100 mb-4" onclick="logout()">Leave</button>
     <nav>
         <a href="#" class="btn btn-outline-secondary w-100 mb-2">Home</a>
         <a href="#" class="btn btn-outline-secondary w-100 mb-2">Statistics</a>
-        <a href="calendar.html" class="btn btn-outline-secondary w-100 mb-2">Calendar</a>
-        <a href="dashboard.html" class="btn btn-outline-secondary w-100">Dashboard</a>
+        <a href="#" class="btn btn-outline-secondary w-100 mb-4">Calendar</a>
+        <a href="/dashboard" class="btn btn-outline-primary w-100 mb-2">Dashboards:</a>
+        <div id="dashboardList"></div> <!-- Контейнер для списка досок -->
+
     </nav>
 </div>
 
-<div class="kanban">
-    <div class="kanbanHeader d-flex justify-content-between align-items-center">
-        <h3>Kanban Dashboard</h3>
-        <button class="btn btn-primary" id="addColumn">Add Column</button>
-    </div>
-    <div class="row" id="kanbanBoard">
-        <div class="kanban-column col-md-3" data-column-id="1">
-            <div class="kanban-header">
-                <input type="text" value="To Do" id="columnTitle">
-                <i class="fa-solid fa-pen-to-square" id="columnEditButton"></i>
-            </div>
-            <button class="btn btn-sm btn-outline-primary mb-3" onclick="showTaskPopup(this)" id="addTask">+ Add Task</button>
+
+<div class="kanban" id="kanbanBoard">
+    <div class="kanban-column col-md-4" id="inPlanColumn" ondragover="allowDrop(event)" ondrop="dropTask(event, 'In plan')">
+        <div class="kanban-header">
+            <h4>In Plan</h4>
         </div>
+        <div class="task-container"></div>
+        <button class="btn btn-sm btn-outline-primary mt-3 w-100" onclick="showTaskPopup('In plan')">+ Add Task</button>
+
     </div>
+    <div class="kanban-column col-md-4" id="inProgressColumn" ondragover="allowDrop(event)" ondrop="dropTask(event, 'In progress')">
+        <div class="kanban-header">
+            <h4>In Progress</h4>
+        </div>
+        <div class="task-container"></div>
+        <button class="btn btn-sm btn-outline-primary mt-3 w-100" onclick="showTaskPopup('In progress')">+ Add Task</button>
+    </div>
+    <div class="kanban-column col-md-4" id="doneColumn" ondragover="allowDrop(event)" ondrop="dropTask(event, 'Done')">
+        <div class="kanban-header">
+            <h4>Done</h4>
+        </div>
+        <div class="task-container"></div>
+        <button class="btn btn-sm btn-outline-primary mt-3 w-100" onclick="showTaskPopup('Done')">+ Add Task</button>
+    </div>
+    <button id="archiveDoneButton" class="btn btn-secondary">Archive Done</button>
 </div>
+
 
 
 <!-- Task Popup Modal -->
@@ -67,14 +80,32 @@
                     <div class="mb-3">
                         <label for="taskPriority" class="form-label">Priority</label>
                         <select id="taskPriority" class="form-select">
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
+                            <option value="Low priority">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskReminder" class="form-label">Remind me ___ before</label>
+                        <select id="taskReminder" class="form-select">
+                            <option value="1hour">1 Hour</option>
+                            <option value="1day">1 Day</option>
+                            <option value="1week">1 Week</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskColor" class="form-label">Color</label>
+                        <select id="taskColor" class="form-select">
+                            <option value="#ea0505">Red</option>
+                            <option value="#fc8403">Orange</option>
+                            <option value="#eddd1b">Yellow</option>
+                            <option value="#1bed6b">Green</option>
+                            <option value="#1ba4ed">Blue</option>
                         </select>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <input type="submit" class="btn btn-primary" onclick="addTask()" value="Save Task" disabled id="addTaskButton">
+                        <input type="submit" class="btn btn-primary" onclick="addTask(event)" value="Save Task" id="addTaskButton">
                     </div>
                 </form>
             </div>
@@ -92,30 +123,49 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="taskForm">
+                <form id="taskFormEdit">
                     <div class="mb-3">
-                        <label for="taskTitle" class="form-label">Title</label>
-                        <input type="text" id="taskTitle" class="form-control">
+                        <label fcor="taskTitleEdit" class="form-label">Title</label>
+                        <input type="text" id="taskTitleEdit" class="form-control">
                     </div>
                     <div class="mb-3">
-                        <label for="taskDescription" class="form-label">Description</label>
-                        <textarea id="taskDescription" class="form-control" rows="3"></textarea>
+                        <label for="taskDescriptionEdit" class="form-label">Description</label>
+                        <textarea id="taskDescriptionEdit" class="form-control" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="taskDeadline" class="form-label">Deadline</label>
-                        <input type="date" id="taskDeadline" class="form-control">
+                        <label for="taskDeadlineEdit" class="form-label">Deadline</label>
+                        <input type="date" id="taskDeadlineEdit" class="form-control">
                     </div>
                     <div class="mb-3">
-                        <label for="taskPriority" class="form-label">Priority</label>
-                        <select id="taskPriority" class="form-select">
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
+                        <label for="taskPriorityEdit" class="form-label">Priority</label>
+                        <select id="taskPriorityEdit" class="form-select">
+                            <option value="Low priority">Low priority</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskReminderEdit" class="form-label">Remind me ___ before</label>
+                        <select id="taskReminderEdit" class="form-select">
+                            <option value="1hour">1 Hour</option>
+                            <option value="1day">1 Day</option>
+                            <option value="1week">1 Week</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskColorEdit" class="form-label">Color</label>
+                        <select id="taskColorEdit" class="form-select">
+                            <option value="#ea0505">Red</option>
+                            <option value="#fc8403">Orange</option>
+                            <option value="#eddd1b">Yellow</option>
+                            <option value="#1bed6b">Green</option>
+                            <option value="#1ba4ed">Blue</option>
                         </select>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <input type="submit" class="btn btn-primary" onclick="addTask()" value="Save Task" disabled id="addTaskButton">
+                        <button type="button" class="btn btn-danger" onclick="deleteTask(event)" value="Delete Task">Delete Task</button>
+                        <button type="button" class="btn btn-primary" onclick="updateTask(event)" value="Update Task">Save Task</button>
                     </div>
                 </form>
             </div>
@@ -124,7 +174,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script src="/public/scripts/dashboard.js"></script>
+<script src="/scripts/dashboard.js"></script>
 
 </body>
 </html>
+

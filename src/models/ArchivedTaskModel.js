@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const taskSchema = new mongoose.Schema({
+const ArchivedTaskModel = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String },
     deadline: { type: Date },
@@ -9,8 +9,6 @@ const taskSchema = new mongoose.Schema({
     color: { type: String, default: '#fff' },
     reminder: { type: String, required: true},
     createdAt: { type: Date, default: Date.now },
-    user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true,},
-    dashboard: { type: mongoose.Schema.Types.ObjectId, ref: 'Dashboard', required: true }, // Привязка к доске
 });
 
-module.exports = mongoose.model('Task', taskSchema);
+module.exports = mongoose.model('ArchivedTask', ArchivedTaskModel);
