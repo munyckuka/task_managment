@@ -1,20 +1,21 @@
-# Используем Node.js образ
-FROM node:18-alpine
+# Используем Node.js LTS версию
+FROM node:18
 
-# Устанавливаем рабочую директорию
+# Создаём рабочую директорию
 WORKDIR /app
 
-# Копируем package.json и package-lock.json
+# Копируем package.json и устанавливаем зависимости
 COPY package*.json ./
+RUN npm install --omit=dev
 
-# Устанавливаем зависимости
-RUN npm install
-
-# Копируем исходный код
+# Копируем код проекта
 COPY . .
 
-# Указываем порт, который будет слушать контейнер
+# Используем переменные окружения
+ENV NODE_ENV=production
+
+# Открываем порт
 EXPOSE 5000
 
-# Запускаем приложение
-CMD ["npm", "start"]
+# Команда для запуска
+CMD ["node", "src/app.js"]

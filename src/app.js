@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Подключаем статику для фронтенда
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.resolve(__dirname, '../public')));
 
 // Настройка сессий и Passport.js
 require('./config/passport')(passport);
@@ -61,4 +61,5 @@ app.get('/profile', (req, res) => {
 
 // Запуск сервера
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Сервер запущен на http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Сервер запущен на порту ${PORT}`));
+
